@@ -10,45 +10,122 @@ import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.TextBox;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
 import com.googlecode.lanterna.terminal.TerminalSize;
-import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.gui.GUIScreen;
+import com.googlecode.lanterna.gui.component.Panel;
+import com.googlecode.lanterna.gui.component.Panel.Orientation;
+import com.googlecode.lanterna.gui.component.Table;
 import java.util.List;
 
 public class LanternaGui {
     public GUIScreen bankScreen;
+    public int choice;
+    public String activeUser;
     
     public LanternaGui(GUIScreen screen){
         this.bankScreen = screen;
         bankScreen.getScreen().startScreen();
     }
     
-    Button exitButton = new Button("Wyjdz", new Action(){
-       @Override
-       public void doAction(){
-           bankScreen.getActiveWindow().close();
-       } 
-    });
-    
     public int menu(){
-        int choice = 1;
+        choice = 0;
         Window windowMenu = new Window("BANK MENU");
         Label lbl_menu = new Label("Wybierz operacje:");
+        Label lbl_user_active = new Label(activeUser);
+        
+        Button choice1Button = new Button("Utwórz użytkownika", new Action(){
+            @Override
+            public void doAction(){
+                choice = 1;
+                windowMenu.close();
+            }
+        });
+        
+        Button choice2Button = new Button("Usuń użytkownika", new Action(){
+            @Override
+            public void doAction(){
+                choice = 2;
+                lbl_user_active.setText("User 2");
+            }
+        });
+        
+        Button choice3Button = new Button("Wyświetl konta użytkownika", new Action(){
+            @Override
+            public void doAction(){
+                choice = 3;
+                windowMenu.close();
+            }
+        });
+        
+        Button choice4Button = new Button("Wybierz aktywnego użytkownika", new Action(){
+            @Override
+            public void doAction(){
+                choice = 4;
+                windowMenu.close();
+            }
+        });
+        
+        Button choice5Button = new Button("Dodaj konto Normalne", new Action(){
+            @Override
+            public void doAction(){
+                choice = 5;
+            }
+        });
+        
+        Button choice6Button = new Button("Dodaj konto Kredytowe", new Action(){
+            @Override
+            public void doAction(){
+                choice = 6;    
+            }
+        });
+        
+        Button choice7Button = new Button("Dodaj konto Oszczędnościowe", new Action(){
+            @Override
+            public void doAction(){
+                choice = 7;    
+            }
+        });
+        
         Button exitButton = new Button("Wyjdz", new Action(){
             @Override
             public void doAction(){
+                choice = 0;
                 windowMenu.close();
-            } 
+            }
         });
         
+        Panel panelActiveUser = new Panel("Aktywny użytkownik:", Orientation.HORISONTAL);
+        lbl_user_active.setAlignment(Component.Alignment.TOP_LEFT);
+        panelActiveUser.addComponent(lbl_user_active, LinearLayout.GROWS_HORIZONTALLY);
+        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        panelActiveUser.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(panelActiveUser, LinearLayout.GROWS_VERTICALLY);
+        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        lbl_menu.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(lbl_menu, LinearLayout.GROWS_VERTICALLY);
+        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        choice1Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice1Button, LinearLayout.GROWS_VERTICALLY);
+        choice2Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice2Button, LinearLayout.GROWS_VERTICALLY);
+        choice3Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice3Button, LinearLayout.GROWS_VERTICALLY);
+        choice4Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice4Button, LinearLayout.GROWS_VERTICALLY);
+        choice5Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice5Button, LinearLayout.GROWS_VERTICALLY);
+        choice6Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice6Button, LinearLayout.GROWS_VERTICALLY);
+        choice7Button.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(choice7Button, LinearLayout.GROWS_VERTICALLY);
+        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
         exitButton.setAlignment(Component.Alignment.BOTTOM_RIGHT);
         windowMenu.addComponent(exitButton, LinearLayout.GROWS_VERTICALLY);
-        bankScreen.showWindow(windowMenu, GUIScreen.Position.FULL_SCREEN);
+        
+        bankScreen.showWindow(windowMenu, GUIScreen.Position.NEW_CORNER_WINDOW);
         return choice;
     }
-    
-    
-    
-    public void w1_welcome() {
+
+    public void welcome() {
         
         Window windowWelcome = new Window("Witaj w aplikacji BANK");        
         windowWelcome.setSoloWindow(true);
@@ -68,7 +145,7 @@ public class LanternaGui {
         bankScreen.showWindow(windowWelcome, GUIScreen.Position.CENTER);
     }
   
-    public void w2_klienci(List<Client> lista) {
+    public void w3_klienci(List<Client> lista) {
         final Window windowKlienci = new Window("BANK");
         windowKlienci.setSoloWindow(true);
         Label lbl_klienci = new Label("Klienci naszego banku:");
@@ -89,7 +166,7 @@ public class LanternaGui {
         bankScreen.showWindow(windowKlienci, GUIScreen.Position.CENTER);        
     }
     
-    public List<Client> w3_dodaj_klienta(List<Client> lista) {
+    public List<Client> w1_dodaj_klienta(List<Client> lista) {
         final Window windowDodaj = new Window("BANK");
         List<Client> lista_klientow = lista;
         windowDodaj.setSoloWindow(true);
@@ -117,4 +194,27 @@ public class LanternaGui {
         bankScreen.showWindow(windowDodaj, GUIScreen.Position.CENTER);
         return lista_klientow;
     }
+
+    public void  w4_wybierz_klienta(List<Client> lista){
+        final Window windowWybierz = new Window("BANK");
+        windowWybierz.setSoloWindow(false);
+        Label lbl_wybierz = new Label("Wybierz aktywnego użytkownika:");
+        Table tableWybierz = new Table(lista.size());
+        for(Client c:lista){
+            tableWybierz.addRow(new Button(c.getName(), new Action(){
+                @Override
+                public void doAction(){
+                    activeUser = c.getName();
+                    windowWybierz.close();
+                }
+            }));
+        }
+        lbl_wybierz.setAlignment(Component.Alignment.TOP_LEFT);
+        windowWybierz.addComponent(lbl_wybierz, LinearLayout.GROWS_VERTICALLY);
+        windowWybierz.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        tableWybierz.setAlignment(Component.Alignment.TOP_LEFT);
+        windowWybierz.addComponent(tableWybierz, LinearLayout.GROWS_VERTICALLY);
+        bankScreen.showWindow(windowWybierz, GUIScreen.Position.CENTER);
+    }
+
 }

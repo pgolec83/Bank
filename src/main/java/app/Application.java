@@ -10,6 +10,7 @@ import com.googlecode.lanterna.gui.GUIScreen;
 public class Application {
     
     public static void main(String [] args){
+        int x = -1;
         GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
         LanternaGui bankGui = new LanternaGui(bankScreen);
         
@@ -26,11 +27,21 @@ public class Application {
             }
 	}
         
-        bankGui.w1_welcome();
-        int x = bankGui.menu();
-        //bankGui.w2_klienci(clients);
-        //clients = bankGui.w3_dodaj_klienta(clients);
-        //bankGui.w2_klienci(clients);
+        bankGui.welcome();
+        while(x!=0){
+            x = bankGui.menu();
+            switch(x){
+                case 1:{
+                    bankGui.w1_dodaj_klienta(clients);
+                } break;
+                case 3:{
+                    bankGui.w3_klienci(clients);
+                } break;
+                case 4:{
+                    bankGui.w4_wybierz_klienta(clients);
+                } break;
+            }   
+        }
         bankScreen.getScreen().stopScreen(); 
     }
 }
