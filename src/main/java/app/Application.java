@@ -14,7 +14,7 @@ public class Application {
         GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
         LanternaGui bankGui = new LanternaGui(bankScreen);
         
-	List<Client> clients = new LinkedList<Client>();
+	List<Client> clients = new LinkedList<>();
 	clients.add(new Client("Pawel"));
 	clients.add(new Client("Paulina"));
 	for(Client c:clients){
@@ -33,6 +33,10 @@ public class Application {
             switch(x){
                 case 1:{
                     bankGui.w1_dodaj_klienta(clients);
+                } break;
+                case 2:{
+                    //clients = 
+                    bankGui.w2_usun_uzytkownika(clients);
                 } break;
                 case 3:{
                     bankGui.w3_klienci(clients);
