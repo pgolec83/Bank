@@ -19,7 +19,6 @@ public class Application {
 	clients.add(new Client("Paulina"));
 	for(Client c:clients){
             if (c.getClientId() == 101){
-		c.newAccount(new AccountNormal(((c.getClientId()*1000)+100)));
 		c.newAccount(new AccountNormal(100));
 		c.newAccount(new AccountNormal(100));
 		c.newAccount(new AccountCredit(200, 400000));

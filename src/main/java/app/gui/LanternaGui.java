@@ -33,9 +33,9 @@ public class LanternaGui {
     public int menu(){
         choice = 0;
         Window windowMenu = new Window("BANK MENU");
-        Label lbl_menu = new Label("Wybierz operacje:");
         Label lbl_user_active = new Label(activeUser);
-        
+        Label lbl_menu_client = new Label("Zarządzanie klientem");
+        Label lbl_menu_account = new Label("Zarządzanie kontami użytkownika");
         Button choice1Button = new Button("Utwórz użytkownika", () -> {
             choice = 1;
             windowMenu.close();
@@ -74,9 +74,8 @@ public class LanternaGui {
         panelActiveUser.setAlignment(Component.Alignment.TOP_LEFT);
         windowMenu.addComponent(panelActiveUser, LinearLayout.GROWS_VERTICALLY);
         windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
-        lbl_menu.setAlignment(Component.Alignment.TOP_LEFT);
-        windowMenu.addComponent(lbl_menu, LinearLayout.GROWS_VERTICALLY);
-        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        lbl_menu_client.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(lbl_menu_client, LinearLayout.GROWS_VERTICALLY);
         choice1Button.setAlignment(Component.Alignment.TOP_LEFT);
         windowMenu.addComponent(choice1Button, LinearLayout.GROWS_VERTICALLY);
         choice2Button.setAlignment(Component.Alignment.TOP_LEFT);
@@ -85,6 +84,9 @@ public class LanternaGui {
         windowMenu.addComponent(choice3Button, LinearLayout.GROWS_VERTICALLY);
         choice4Button.setAlignment(Component.Alignment.TOP_LEFT);
         windowMenu.addComponent(choice4Button, LinearLayout.GROWS_VERTICALLY);
+        windowMenu.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+        lbl_menu_account.setAlignment(Component.Alignment.TOP_LEFT);
+        windowMenu.addComponent(lbl_menu_account, LinearLayout.GROWS_VERTICALLY);
         choice5Button.setAlignment(Component.Alignment.TOP_LEFT);
         windowMenu.addComponent(choice5Button, LinearLayout.GROWS_VERTICALLY);
         choice6Button.setAlignment(Component.Alignment.TOP_LEFT);
@@ -203,11 +205,20 @@ public class LanternaGui {
                 windowWybierz.close();
             }));
         }
+        Button usunActiveButton = new Button("Usuń aktywnego użytkownika", () -> {
+            activeUser = "brak";
+            windowWybierz.close();
+        });
         lbl_wybierz.setAlignment(Component.Alignment.TOP_LEFT);
         windowWybierz.addComponent(lbl_wybierz, LinearLayout.GROWS_VERTICALLY);
         windowWybierz.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
         tableWybierz.setAlignment(Component.Alignment.TOP_LEFT);
         windowWybierz.addComponent(tableWybierz, LinearLayout.GROWS_VERTICALLY);
+        if(!(activeUser.equals("brak"))){
+            windowWybierz.addComponent(new EmptySpace(), LinearLayout.GROWS_VERTICALLY);
+            usunActiveButton.setAlignment(Component.Alignment.TOP_LEFT);
+            windowWybierz.addComponent(usunActiveButton, LinearLayout.GROWS_VERTICALLY);
+        }
         bankScreen.showWindow(windowWybierz, GUIScreen.Position.CENTER);
     }
     
