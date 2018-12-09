@@ -1,19 +1,17 @@
 package app;
 
 import app.gui.LanternaGui;
+import app.gui.WindowGui;
 import app.model.*;
 
 import java.util.*;
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.GUIScreen;
+import java.awt.EventQueue;
 
 public class Application {
     
     public static void main(String [] args){
-        int x = -1;
-        GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
-        LanternaGui bankGui = new LanternaGui(bankScreen);
-        
 	List<Client> clients = new LinkedList<>();
 	clients.add(new Client("Pawel"));
 	clients.add(new Client("Paulina"));
@@ -25,7 +23,17 @@ public class Application {
 		c.newAccount(new AccountSavings(300, 0.80));				
             }
 	}
+        EventQueue.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                new WindowGui();
+            }
+        });
         
+        /*
+        int x = -1;
+        GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
+        LanternaGui bankGui = new LanternaGui(bankScreen);
         bankGui.welcome();
         while(x!=0){
             x = bankGui.menu();
@@ -46,5 +54,6 @@ public class Application {
             }   
         }
         bankScreen.getScreen().stopScreen(); 
+*/
     }
 }

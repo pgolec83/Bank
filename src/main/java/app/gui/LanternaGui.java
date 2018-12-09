@@ -1,7 +1,6 @@
 package app.gui;
 
 import app.model.Client;
-import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
@@ -17,7 +16,6 @@ import com.googlecode.lanterna.gui.component.Table;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LanternaGui {
     public GUIScreen bankScreen;
