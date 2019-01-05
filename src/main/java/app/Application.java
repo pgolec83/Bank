@@ -3,16 +3,21 @@ package app;
 import app.gui.LanternaGui;
 import app.gui.WindowGui;
 import app.model.*;
-
 import java.util.*;
-import javax.swing.*;
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.GUIScreen;
-import java.awt.EventQueue;
 
 public class Application {
     
     public static void main(String [] args){
+
+        
+        //*** WINDOW GUI - SWING ***
+
+        new WindowGui();
+        
+        //*** TEXT GUI - LANTERNA 2.1.8 ***
+        /*
 	List<Client> clients = new LinkedList<>();
 	clients.add(new Client("Pawel"));
 	clients.add(new Client("Paulina"));
@@ -23,27 +28,8 @@ public class Application {
 		c.newAccount(new AccountCredit(200, 400000));
 		c.newAccount(new AccountSavings(300, 0.80));				
             }
-	} 
+	}         
         
-        //*** WINDOW GUI - SWING ***
-        /*
-        j
-            @Override
-            public void run(){
-                new WindowGui();
-            }
-        });
-        */
-        
-        WindowGui bankWGui = new WindowGui();
-        bankWGui.paneStart();
-        //bankWGui.paneSecond();
-        
-        
-        
-        
-        /*
-        //*** TEXT GUI - LANTERNA 2.1.8 ***
         int x = -1;
         GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
         LanternaGui bankGui = new LanternaGui(bankScreen);
@@ -67,6 +53,6 @@ public class Application {
             }   
         }
         bankScreen.getScreen().stopScreen(); 
-*/
+        */
     }
 }
