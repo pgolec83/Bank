@@ -5,6 +5,7 @@ import app.gui.WindowGui;
 import app.model.*;
 
 import java.util.*;
+import javax.swing.*;
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.gui.GUIScreen;
 import java.awt.EventQueue;
@@ -22,15 +23,27 @@ public class Application {
 		c.newAccount(new AccountCredit(200, 400000));
 		c.newAccount(new AccountSavings(300, 0.80));				
             }
-	}
-        EventQueue.invokeLater(new Runnable(){
+	} 
+        
+        //*** WINDOW GUI - SWING ***
+        /*
+        j
             @Override
             public void run(){
                 new WindowGui();
             }
         });
+        */
+        
+        WindowGui bankWGui = new WindowGui();
+        bankWGui.paneStart();
+        //bankWGui.paneSecond();
+        
+        
+        
         
         /*
+        //*** TEXT GUI - LANTERNA 2.1.8 ***
         int x = -1;
         GUIScreen bankScreen = TerminalFacade.createGUIScreen();   
         LanternaGui bankGui = new LanternaGui(bankScreen);
