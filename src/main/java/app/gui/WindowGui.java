@@ -1,7 +1,6 @@
 package app.gui;
 
 import app.model.*;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -17,47 +16,18 @@ public class WindowGui{
     private final String bankTitle = new String("Aplikacja bankowa");
     private String loggedUser = null;
     private JFrame bankFrame;
+    private JPanel bankPanel;
+    private JTable users;
     private JMenuBar bankMenu;
     private JMenu menuBank,  menuUser, menuAcc, menuOpp;
     private JMenuItem menuBankAbout, menuBankExit;
     private JMenuItem menuUserAdd, menuUserDel, menuUserShow;
     private JMenuItem menuAccAdd, menuAccDel, menuAccShow;
     private JMenuItem menuOppAdd, menuOppWithdraw, menuOppTransfer, menuOppShow;
-    private List<Client> clients;
-    private Component[] componentList; 
+    private List<Client> clients; 
     
     public WindowGui(){
         clients = new LinkedList<>();
-        clients.add(new Client("Pawel"));
-	clients.add(new Client("Paulina"));
-	clients.add(new Client("Adam"));
-	clients.add(new Client("Alicja"));
-	clients.add(new Client("Bartek"));
-	clients.add(new Client("Barbara"));
-	clients.add(new Client("Cezary"));
-	clients.add(new Client("Damian"));
-	clients.add(new Client("Dorota"));
-	clients.add(new Client("Eryk"));
-	clients.add(new Client("Ewa"));
-	clients.add(new Client("Fabian"));
-	clients.add(new Client("Fiona"));
-	clients.add(new Client("Grzegorz"));
-	clients.add(new Client("Gosia"));
-        clients.add(new Client("Pawel"));
-	clients.add(new Client("Paulina"));
-	clients.add(new Client("Adam"));
-	clients.add(new Client("Alicja"));
-	clients.add(new Client("Bartek"));
-	clients.add(new Client("Barbara"));
-	clients.add(new Client("Cezary"));
-	clients.add(new Client("Damian"));
-	clients.add(new Client("Dorota"));
-	clients.add(new Client("Eryk"));
-	clients.add(new Client("Ewa"));
-	clients.add(new Client("Fabian"));
-	clients.add(new Client("Fiona"));
-	clients.add(new Client("Grzegorz"));
-	clients.add(new Client("Gosia"));
         clients.add(new Client("Pawel"));
 	clients.add(new Client("Paulina"));
 	clients.add(new Client("Adam"));
@@ -112,7 +82,45 @@ public class WindowGui{
             System.exit(0);
         });
         menuUserAdd = new JMenuItem("Dodaj użytkownika...");
+        menuUserAdd.addActionListener((ActionEvent e) -> {
+            String newName = JOptionPane.showInputDialog(bankFrame, "Podaj nazwę użytkownika", "Dodawanie użytkownika", JOptionPane.QUESTION_MESSAGE);
+            if(newName != null){
+                if(!newName.isEmpty()){
+                    clients.add(new Client(newName));
+                    paneShowUsers();
+                } else {
+                    JOptionPane.showMessageDialog(bankFrame, "Nie podano nazwy użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(bankFrame, "Anulowane dodawanie użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
+            } 
+        });
         menuUserDel = new JMenuItem("Usuń użytkownika...");
+        menuUserDel.addActionListener((ActionEvent e) -> {
+            if(users.getSelectionModel().isSelectionEmpty()) {
+                JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Usuwanie użytkownika", JOptionPane.WARNING_MESSAGE);
+            } else {
+                int r = users.getSelectedRow();
+                int c = (users.getSelectedColumn())-1;
+                String k = users.getValueAt(r, c).toString();
+                System.out.println("k= "+k);
+                //users.getValueAt(users.getSelectedRow(), users.getSelectedColumn());
+            }
+            //users.getValueAt(1, 2);
+        });
+        /*
+        6
+
+table.getSelectedRow() will get selected row.
+
+table.getSelectedColumns() will get selected columns.
+
+getValueAt(rowIndex, columnIndex) will give the value present at the selected row for each column.
+        
+        
+        
+        
+        */
         menuUserShow = new JMenuItem("Wyświetl użytkowników");
         menuUserShow.addActionListener((ActionEvent e) -> {
             paneShowUsers();
@@ -126,34 +134,9 @@ public class WindowGui{
         menuAccDel.setEnabled(false);
         menuAccShow = new JMenuItem("Wyświetl konta użytkownika");
         menuAccShow.addActionListener((ActionEvent e) -> {
-     
-            
-            
-            
-            //bankFrame.remove(0);
-            //bankFrame.remove(0);
-            //bankFrame.validate();
+            bankPanel.remove(0);
+            bankPanel.repaint();
         });
-        /*
-        Component[] componentList = panelName.getComponents();
-
-//Loop through the components
-for(Component c : componentList){
-
-    //Find the components you want to remove
-    if(c instanceof JCheckBox){
-
-        //Remove it
-        clientPanel.remove(c);
-    }
-}
-
-//IMPORTANT
-panelName.revalidate();
-panelName.repaint();
-        
-        
-        */
         //menuAccShow.setEnabled(false);
         menuAcc.add(menuAccAdd);
         menuAcc.add(menuAccDel);
@@ -176,12 +159,16 @@ panelName.repaint();
         bankMenu.add(menuOpp);
         bankFrame.setJMenuBar(bankMenu);
         bankFrame.setVisible(true);
+        
+        bankPanel = new JPanel();
+        bankFrame.add(bankPanel);
         paneShowUsers();
     }
     
     public void paneShowUsers(){
-        //bankFrame.removeAll();
-        
+        if(bankPanel.getComponentCount()>0){
+            bankPanel.remove(0);
+        }
         String tableHeaders[] = {"ID","Name","Created date","Accounts"};
         String tableData[][] = new String[clients.size()][4];
         for(int i=0;i<clients.size();i++){
@@ -190,44 +177,16 @@ panelName.repaint();
             tableData[i][2] = clients.get(i).getCreated();
             tableData[i][3] = String.valueOf(clients.get(i).getAccounts().size());
         }
-        JTable users = new JTable(tableData, tableHeaders);
+        users = new JTable(tableData, tableHeaders);
         users.getColumnModel().getColumn(0).setPreferredWidth(100);
         users.getColumnModel().getColumn(1).setPreferredWidth(395);
         users.getColumnModel().getColumn(2).setPreferredWidth(200);
         users.getColumnModel().getColumn(3).setPreferredWidth(100);
         JScrollPane paneUsers = new JScrollPane(users);
         paneUsers.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
-        paneUsers.setBounds(0, 0, 795, 550);
-        
-        bankFrame.add(paneUsers);
-        
+        paneUsers.setBounds(0, 0, 795, 550);       
+        bankPanel.add(paneUsers);  
     }
-
-     //JTable jt = new JTable(data, column);
-       // JScrollPane sp = new JScrollPane(jt);
-
 }    
-        /* 
-        final JTextField tf = new JTextField();
-        tf.setBounds(10,30,200,20);
-        frTest.add(tf);
-        JButton btn = new JButton("Medenfaken!");
-        btn.setBounds(10,50,200,20);
-        frTest.add(btn);
-        btn.addActionListener(new ActionListener(){
- 
-        });
-        
 
-       
-        sp.setBounds(10,100,200,300);
-        frTest.add(sp);
-        DefaultListModel<String> lista = new DefaultListModel<>();
-
-        JList<String> listaEl = new JList<>(lista);
-        listaEl.setBounds(10, 410, 100, 100);
-        frTest.add(listaEl);
-        frTest.setLayout(null);
-        frTest.setVisible(true);
-        */
-
+  
