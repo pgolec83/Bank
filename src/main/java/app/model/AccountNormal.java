@@ -2,8 +2,10 @@ package app.model;
 
 public class AccountNormal extends Account{
 	
-	public AccountNormal (int id) {
-		super(id,"Standard Account");
+	public AccountNormal(int clientID) {
+		super();
+                this.accType = "N";
+                this.accId = clientID + 1000 + uniqID;
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class Account implements Serializable{
-	private static int uniqID=0; //unique account accId
+	protected static int uniqID=0; //unique account accId
 	protected int accId; //account accId number
 	protected String accType; //account Type
 	protected double balance; //account balance
@@ -13,10 +13,8 @@ public abstract class Account implements Serializable{
 		
 	//parametrized constructor - each account have an accId and type
 	//and new accounts are always at balance 0
-	public Account(int id, String accType) {
+	public Account() {
 		uniqID++; //generates unique accId for each instance of Account
-		this.accId = id + uniqID;
-		this.accType = accType;
 		this.balance = 0;
 	}
 	
@@ -44,7 +42,7 @@ public abstract class Account implements Serializable{
 	public List<Operation> getOperations() {
 		return operations;
 	}
-	
+        
 	//add operation to account
 	public void newOperation(Operation op){
 		operations.add(op);

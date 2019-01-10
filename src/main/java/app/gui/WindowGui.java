@@ -1,6 +1,8 @@
 package app.gui;
 
 import app.model.*;
+import app.model.AccountCredit;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -14,14 +16,14 @@ import static javax.swing.JOptionPane.*;
 
 public class WindowGui{
     private final String bankTitle = new String("Aplikacja bankowa");
-    private String loggedUser = null;
+    private Client loggedUser = null;
     private JFrame bankFrame;
     private JPanel bankPanel;
-    private JTable users;
+    private JTable users, accounts;
     private JMenuBar bankMenu;
     private JMenu menuBank,  menuUser, menuAcc, menuOpp;
     private JMenuItem menuBankAbout, menuBankExit;
-    private JMenuItem menuUserAdd, menuUserDel, menuUserShow;
+    private JMenuItem menuUserAdd, menuUserDel, menuUserActive, menuUserShow;
     private JMenuItem menuAccAdd, menuAccDel, menuAccShow;
     private JMenuItem menuOppAdd, menuOppWithdraw, menuOppTransfer, menuOppShow;
     private List<Client> clients; 
@@ -43,14 +45,12 @@ public class WindowGui{
 	clients.add(new Client("Fiona"));
 	clients.add(new Client("Grzegorz"));
 	clients.add(new Client("Gosia"));
-	for(Client c:clients){
-            if (c.getClientId() == 101){
-		c.newAccount(new AccountNormal(100));
-		c.newAccount(new AccountNormal(100));
-		c.newAccount(new AccountCredit(200, 400000));
-		c.newAccount(new AccountSavings(300, 0.80));				
-            }
-	}
+        Client k = clients.get(0);
+	k.newAccount(new AccountNormal(k.getClientId()));
+	k.newAccount(new AccountNormal(k.getClientId()));
+	k.newAccount(new AccountCredit(k.getClientId(), 400000));
+	k.newAccount(new AccountSavings(k.getClientId(), 0.80));
+        
         bankFrame = new JFrame();
         bankFrame.setTitle(bankTitle + " - brak zalogowanego użytkownika");
         bankFrame.setLocation(100,100);
@@ -97,36 +97,45 @@ public class WindowGui{
         });
         menuUserDel = new JMenuItem("Usuń użytkownika...");
         menuUserDel.addActionListener((ActionEvent e) -> {
+            int toDel = -1;
             if(users.getSelectionModel().isSelectionEmpty()) {
                 JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Usuwanie użytkownika", JOptionPane.WARNING_MESSAGE);
             } else {
-                int r = users.getSelectedRow();
-                int c = (users.getSelectedColumn())-1;
-                String k = users.getValueAt(r, c).toString();
-                System.out.println("k= "+k);
-                //users.getValueAt(users.getSelectedRow(), users.getSelectedColumn());
+                int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), (users.getSelectedColumn())-1).toString());
+                for(Client d:clients)
+                    if(d.getClientId() == userID) toDel = clients.indexOf(d);                                    
+            }       
+            if(toDel>0) {
+                clients.remove(toDel);
+                paneShowUsers();
             }
-            //users.getValueAt(1, 2);
         });
-        /*
-        6
-
-table.getSelectedRow() will get selected row.
-
-table.getSelectedColumns() will get selected columns.
-
-getValueAt(rowIndex, columnIndex) will give the value present at the selected row for each column.
-        
-        
-        
-        
-        */
+        menuUserActive = new JMenuItem("Wybierz aktywnego użytkownika");
+        menuUserActive.addActionListener((ActionEvent e) -> {
+            if(users.getSelectionModel().isSelectionEmpty()) {
+                JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Wybór użytkownika", JOptionPane.WARNING_MESSAGE);
+            } else {
+                int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), (users.getSelectedColumn())-1).toString());
+                for(Client d:clients)
+                    if(d.getClientId() == userID) loggedUser = d;
+                bankFrame.setTitle(bankTitle + " - " + loggedUser.getName());
+                JOptionPane.showMessageDialog(bankFrame, "Wybrano aktywnego użytkownika: "+loggedUser.getName(), "Wybór użytkownika", JOptionPane.INFORMATION_MESSAGE);
+                if(loggedUser.getAccounts().size()>0){
+                    menuAccShow.setEnabled(true);
+                }
+                menuAccAdd.setEnabled(true);              
+            } 
+        });
         menuUserShow = new JMenuItem("Wyświetl użytkowników");
         menuUserShow.addActionListener((ActionEvent e) -> {
             paneShowUsers();
+            menuUserAdd.setEnabled(true);
+            menuUserDel.setEnabled(true);
+            menuUserActive.setEnabled(true);
         });
         menuUser.add(menuUserAdd);
         menuUser.add(menuUserDel);
+        menuUser.add(menuUserActive);
         menuUser.add(menuUserShow);
         menuAccAdd = new JMenuItem("Dodaj konto");
         menuAccAdd.setEnabled(false);
@@ -134,8 +143,10 @@ getValueAt(rowIndex, columnIndex) will give the value present at the selected ro
         menuAccDel.setEnabled(false);
         menuAccShow = new JMenuItem("Wyświetl konta użytkownika");
         menuAccShow.addActionListener((ActionEvent e) -> {
-            bankPanel.remove(0);
-            bankPanel.repaint();
+            //menuUserAdd.setEnabled(false);
+            //menuUserDel.setEnabled(false);
+            //menuUserActive.setEnabled(false);
+            paneShowAcc();
         });
         //menuAccShow.setEnabled(false);
         menuAcc.add(menuAccAdd);
@@ -186,6 +197,48 @@ getValueAt(rowIndex, columnIndex) will give the value present at the selected ro
         paneUsers.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
         paneUsers.setBounds(0, 0, 795, 550);       
         bankPanel.add(paneUsers);  
+    }
+    
+    public void paneShowAcc(){
+        if(bankPanel.getComponentCount()>0){
+            bankPanel.remove(0);
+        }
+        if(loggedUser==null){
+            JOptionPane.showMessageDialog(bankFrame, "Nie wybrano aktywnego użytkownika!", "Brak użytkownika", JOptionPane.WARNING_MESSAGE);
+            paneShowUsers();
+        }
+        List<Account> listAcc = loggedUser.getAccounts();
+        String tableHeaders[] = {"ID", "Account Type", "Balance", "Credit Limit", "Interest Rate", "Operations"};
+        String tableData[][] = new String[listAcc.size()][6];
+        for(int j=0;j<listAcc.size();j++){
+            tableData[j][0] = String.valueOf(listAcc.get(j).getId());
+            tableData[j][2] = String.valueOf(listAcc.get(j).getBalance());
+            tableData[j][5] = String.valueOf(listAcc.get(j).getOperations().size());
+            if(listAcc.get(j).getAccType()=="N"){
+                tableData[j][1] = "Normal Account";
+                tableData[j][3] = "n/d";
+                tableData[j][4] = "n/d";
+            }
+            if(listAcc.get(j).getAccType()=="C"){
+                tableData[j][1] = "Credit Account";
+                tableData[j][3] = "n/d";
+                tableData[j][4] = "n/d";
+            }
+            if(listAcc.get(j).getAccType()=="S"){
+                tableData[j][1] = "Savings Account";
+                tableData[j][3] = "n/d";
+                tableData[j][4] = "n/d";
+            }            
+        }
+        accounts = new JTable(tableData, tableHeaders);
+        JScrollPane paneAccs = new JScrollPane(accounts);
+        paneAccs.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        paneAccs.setBounds(0, 0, 795, 550);
+        bankPanel.add(paneAccs);
+        
+        
+        
+        
     }
 }    
 

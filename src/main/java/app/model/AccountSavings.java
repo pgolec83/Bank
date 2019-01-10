@@ -1,18 +1,28 @@
 package app.model;
 
 public class AccountSavings extends Account{
-	private double interestRate;
+    private double interestRate;
 	
-	public AccountSavings(int id, double interestRate) {
-		super(id, "Savings Account");
-		this.interestRate = interestRate;
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("Account ID: ").append(accId).append(" - ").append(accType).append(" Balance: ").append(balance);
-		sb.append(" Interest Rate: ").append(interestRate).append(" Operations count: ").append(operations.size()).append("\n");
-		return sb.toString();
-	}
+    public AccountSavings(int clientID, double interestRate) {
+	super();
+        this.accType = "S";
+        this.accId = clientID + 6000 + uniqID;
+        this.interestRate = interestRate;
+    }
+
+    public double getInterestRate() {
+        return interestRate;
+    }
+
+    public void setInterestRate(double interestRate) {
+        this.interestRate = interestRate;
+    }
+    
+    @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("Account ID: ").append(accId).append(" - ").append(accType).append(" Balance: ").append(balance);
+	sb.append(" Interest Rate: ").append(interestRate).append(" Operations count: ").append(operations.size()).append("\n");
+	return sb.toString();
+    }
 }

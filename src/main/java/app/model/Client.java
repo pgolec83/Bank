@@ -15,7 +15,7 @@ public class Client implements Serializable {
 	
 	public Client(String name) {
 		uniqID++;
-		this.clientId = (100 + uniqID);
+		this.clientId = (1000000 + (uniqID*10000));
 		this.name = name;
 		Date createdDate = new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -52,6 +52,8 @@ public class Client implements Serializable {
 		accounts.add(acc);
 	}
 	
+        
+        
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
