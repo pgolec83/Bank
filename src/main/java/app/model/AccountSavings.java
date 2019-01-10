@@ -13,10 +13,6 @@ public class AccountSavings extends Account{
     public double getInterestRate() {
         return interestRate;
     }
-
-    public void setInterestRate(double interestRate) {
-        this.interestRate = interestRate;
-    }
     
     @Override
     public String toString() {

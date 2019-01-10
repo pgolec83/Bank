@@ -5,7 +5,7 @@ public class AccountNormal extends Account{
 	public AccountNormal(int clientID) {
 		super();
                 this.accType = "N";
-                this.accId = clientID + 1000 + uniqID;
+                this.accId = clientID + 1000 +uniqID;
 	}
 	
 	@Override

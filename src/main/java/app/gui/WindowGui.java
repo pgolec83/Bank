@@ -30,152 +30,107 @@ public class WindowGui{
     
     public WindowGui(){
         clients = new LinkedList<>();
-        clients.add(new Client("Pawel"));
-	clients.add(new Client("Paulina"));
-	clients.add(new Client("Adam"));
-	clients.add(new Client("Alicja"));
-	clients.add(new Client("Bartek"));
-	clients.add(new Client("Barbara"));
-	clients.add(new Client("Cezary"));
-	clients.add(new Client("Damian"));
-	clients.add(new Client("Dorota"));
-	clients.add(new Client("Eryk"));
-	clients.add(new Client("Ewa"));
-	clients.add(new Client("Fabian"));
-	clients.add(new Client("Fiona"));
-	clients.add(new Client("Grzegorz"));
-	clients.add(new Client("Gosia"));
-        Client k = clients.get(0);
-	k.newAccount(new AccountNormal(k.getClientId()));
-	k.newAccount(new AccountNormal(k.getClientId()));
-	k.newAccount(new AccountCredit(k.getClientId(), 400000));
-	k.newAccount(new AccountSavings(k.getClientId(), 0.80));
-        
+        createData();
+                
         bankFrame = new JFrame();
-        bankFrame.setTitle(bankTitle + " - brak zalogowanego użytkownika");
+        bankFrame.setTitle(bankTitle + " - brak aktywnego użytkownika");
         bankFrame.setLocation(100,100);
         bankFrame.setSize(800,600);
         bankFrame.setResizable(false);
         bankFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
         bankMenu = new JMenuBar();
         menuBank = new JMenu("Bank");
         menuUser = new JMenu("Użytkownik");
         menuAcc = new JMenu("Konta użytkownika");
         menuOpp = new JMenu("Operacje na koncie");
+ 
         menuBankAbout = new JMenuItem("O aplikacji...");
-        menuBankExit = new JMenuItem("Wyjdź z aplikacji");
-        menuBank.add(menuBankAbout);
         menuBankAbout.addActionListener((ActionEvent e) -> {
-            JOptionPane.showMessageDialog(bankFrame,
-                    "Aplikacja Bankowa\n\n"
-                            + "Projekt w ramach przedmiotu Komunikacja Człowiek-Komputer\n\n"
-                            + "Autorzy:\n"
-                            + "- Paulina Chludzińska\n"
-                            + "- Paweł Golec\n\n"
-                            + "Wydział Informatyki, Politechnika Białostocka, 2018/19",
-                    bankTitle,
-                    JOptionPane.INFORMATION_MESSAGE);
-        });
-        menuBank.addSeparator();
-        menuBank.add(menuBankExit);
+            actionMsgAbout();
+        });       
+        menuBankExit = new JMenuItem("Wyjdź z aplikacji");
         menuBankExit.addActionListener((ActionEvent e) -> {
             System.exit(0);
         });
-        menuUserAdd = new JMenuItem("Dodaj użytkownika...");
+        menuUserAdd = new JMenuItem("Dodaj użytkownika");
         menuUserAdd.addActionListener((ActionEvent e) -> {
-            String newName = JOptionPane.showInputDialog(bankFrame, "Podaj nazwę użytkownika", "Dodawanie użytkownika", JOptionPane.QUESTION_MESSAGE);
-            if(newName != null){
-                if(!newName.isEmpty()){
-                    clients.add(new Client(newName));
-                    paneShowUsers();
-                } else {
-                    JOptionPane.showMessageDialog(bankFrame, "Nie podano nazwy użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(bankFrame, "Anulowane dodawanie użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
-            } 
+            actionUserAdd();
         });
-        menuUserDel = new JMenuItem("Usuń użytkownika...");
+        menuUserDel = new JMenuItem("Usuń użytkownika");
         menuUserDel.addActionListener((ActionEvent e) -> {
-            int toDel = -1;
-            if(users.getSelectionModel().isSelectionEmpty()) {
-                JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Usuwanie użytkownika", JOptionPane.WARNING_MESSAGE);
-            } else {
-                int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), (users.getSelectedColumn())-1).toString());
-                for(Client d:clients)
-                    if(d.getClientId() == userID) toDel = clients.indexOf(d);                                    
-            }       
-            if(toDel>0) {
-                clients.remove(toDel);
-                paneShowUsers();
-            }
+            actionUserDel();
         });
         menuUserActive = new JMenuItem("Wybierz aktywnego użytkownika");
         menuUserActive.addActionListener((ActionEvent e) -> {
-            if(users.getSelectionModel().isSelectionEmpty()) {
-                JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Wybór użytkownika", JOptionPane.WARNING_MESSAGE);
-            } else {
-                int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), (users.getSelectedColumn())-1).toString());
-                for(Client d:clients)
-                    if(d.getClientId() == userID) loggedUser = d;
-                bankFrame.setTitle(bankTitle + " - " + loggedUser.getName());
-                JOptionPane.showMessageDialog(bankFrame, "Wybrano aktywnego użytkownika: "+loggedUser.getName(), "Wybór użytkownika", JOptionPane.INFORMATION_MESSAGE);
-                if(loggedUser.getAccounts().size()>0){
-                    menuAccShow.setEnabled(true);
-                }
-                menuAccAdd.setEnabled(true);              
-            } 
+            actionUserActive();
         });
         menuUserShow = new JMenuItem("Wyświetl użytkowników");
         menuUserShow.addActionListener((ActionEvent e) -> {
             paneShowUsers();
-            menuUserAdd.setEnabled(true);
-            menuUserDel.setEnabled(true);
-            menuUserActive.setEnabled(true);
         });
+        menuAccAdd = new JMenuItem("Dodaj konto");
+        menuAccAdd.addActionListener((ActionEvent e) -> {
+            actionAccAdd();
+        });
+        menuAccDel = new JMenuItem("Usuń konto");
+        menuAccDel.addActionListener((ActionEvent e) -> {
+            actionAccDel();
+        });
+        menuAccShow = new JMenuItem("Wyświetl konta użytkownika");
+        menuAccShow.addActionListener((ActionEvent e) -> {
+            paneShowAcc();
+        });    
+        menuOppAdd = new JMenuItem("Wpłata na konto");
+        menuOppAdd.addActionListener((ActionEvent e) -> {
+            
+        });
+        menuOppWithdraw = new JMenuItem("Wypłata z konta");
+        menuOppWithdraw.addActionListener((ActionEvent e) -> {
+            
+        });
+        menuOppTransfer = new JMenuItem("Przelew pomiędzy kontami");
+        menuOppTransfer.addActionListener((ActionEvent e) -> {
+            
+        });
+        menuOppShow = new JMenuItem("Wyświetl operacje użytkownika");
+        menuOppShow.addActionListener((ActionEvent e) -> {
+            
+        });
+        
+        menuBank.add(menuBankAbout);
+        menuBank.addSeparator();
+        menuBank.add(menuBankExit);
+        
         menuUser.add(menuUserAdd);
         menuUser.add(menuUserDel);
         menuUser.add(menuUserActive);
         menuUser.add(menuUserShow);
-        menuAccAdd = new JMenuItem("Dodaj konto");
-        menuAccAdd.setEnabled(false);
-        menuAccDel = new JMenuItem("Usuń konto");
-        menuAccDel.setEnabled(false);
-        menuAccShow = new JMenuItem("Wyświetl konta użytkownika");
-        menuAccShow.addActionListener((ActionEvent e) -> {
-            //menuUserAdd.setEnabled(false);
-            //menuUserDel.setEnabled(false);
-            //menuUserActive.setEnabled(false);
-            paneShowAcc();
-        });
-        //menuAccShow.setEnabled(false);
+        
         menuAcc.add(menuAccAdd);
         menuAcc.add(menuAccDel);
         menuAcc.add(menuAccShow);
-        menuOppAdd = new JMenuItem("Wpłata na konto");
-        menuOppAdd.setEnabled(false);
-        menuOppWithdraw = new JMenuItem("Wypłata z konta");
-        menuOppWithdraw.setEnabled(false);
-        menuOppTransfer = new JMenuItem("Przelew pomiędzy kontami");
-        menuOppTransfer.setEnabled(false);
-        menuOppShow = new JMenuItem("Wyświetl operacje na koncie");
-        menuOppShow.setEnabled(false);
+        
         menuOpp.add(menuOppAdd);
         menuOpp.add(menuOppWithdraw);
         menuOpp.add(menuOppTransfer);
         menuOpp.add(menuOppShow);
+        
         bankMenu.add(menuBank);
         bankMenu.add(menuUser);
         bankMenu.add(menuAcc);
         bankMenu.add(menuOpp);
+        
         bankFrame.setJMenuBar(bankMenu);
         bankFrame.setVisible(true);
+        
+        setMenu(0);
         
         bankPanel = new JPanel();
         bankFrame.add(bankPanel);
         paneShowUsers();
     }
-    
+      
     public void paneShowUsers(){
         if(bankPanel.getComponentCount()>0){
             bankPanel.remove(0);
@@ -196,7 +151,8 @@ public class WindowGui{
         JScrollPane paneUsers = new JScrollPane(users);
         paneUsers.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
         paneUsers.setBounds(0, 0, 795, 550);       
-        bankPanel.add(paneUsers);  
+        bankPanel.add(paneUsers);
+        setMenu(14);
     }
     
     public void paneShowAcc(){
@@ -207,27 +163,26 @@ public class WindowGui{
             JOptionPane.showMessageDialog(bankFrame, "Nie wybrano aktywnego użytkownika!", "Brak użytkownika", JOptionPane.WARNING_MESSAGE);
             paneShowUsers();
         }
-        List<Account> listAcc = loggedUser.getAccounts();
         String tableHeaders[] = {"ID", "Account Type", "Balance", "Credit Limit", "Interest Rate", "Operations"};
-        String tableData[][] = new String[listAcc.size()][6];
-        for(int j=0;j<listAcc.size();j++){
-            tableData[j][0] = String.valueOf(listAcc.get(j).getId());
-            tableData[j][2] = String.valueOf(listAcc.get(j).getBalance());
-            tableData[j][5] = String.valueOf(listAcc.get(j).getOperations().size());
-            if(listAcc.get(j).getAccType()=="N"){
+        String tableData[][] = new String[loggedUser.getAccounts().size()][6];
+        for(int j=0;j<loggedUser.getAccounts().size();j++){
+            tableData[j][0] = String.valueOf(loggedUser.getAccounts().get(j).getId());
+            tableData[j][2] = String.valueOf(loggedUser.getAccounts().get(j).getBalance()) + " PLN";
+            tableData[j][5] = String.valueOf(loggedUser.getAccounts().get(j).getOperations().size());
+            if(loggedUser.getAccounts().get(j).getAccType()=="N"){
                 tableData[j][1] = "Normal Account";
-                tableData[j][3] = "n/d";
-                tableData[j][4] = "n/d";
+                tableData[j][3] = "-";
+                tableData[j][4] = "-";
             }
-            if(listAcc.get(j).getAccType()=="C"){
+            if(loggedUser.getAccounts().get(j).getAccType()=="C"){
                 tableData[j][1] = "Credit Account";
-                tableData[j][3] = "n/d";
-                tableData[j][4] = "n/d";
+                tableData[j][3] = String.valueOf((((AccountCredit)loggedUser.getAccounts().get(j)).getCreditLimit())) + " PLN";
+                tableData[j][4] = "-";
             }
-            if(listAcc.get(j).getAccType()=="S"){
+            if(loggedUser.getAccounts().get(j).getAccType()=="S"){
                 tableData[j][1] = "Savings Account";
-                tableData[j][3] = "n/d";
-                tableData[j][4] = "n/d";
+                tableData[j][3] = "-";
+                tableData[j][4] = String.valueOf((((AccountSavings)loggedUser.getAccounts().get(j)).getInterestRate())*100) + " %";
             }            
         }
         accounts = new JTable(tableData, tableHeaders);
@@ -235,9 +190,267 @@ public class WindowGui{
         paneAccs.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         paneAccs.setBounds(0, 0, 795, 550);
         bankPanel.add(paneAccs);
-        
-        
-        
+        setMenu(23);
+    }
+
+    public void actionMsgAbout(){
+        JOptionPane.showMessageDialog(bankFrame,
+                        "Aplikacja Bankowa\n\n"
+                                + "Projekt w ramach przedmiotu Komunikacja Człowiek-Komputer\n\n"
+                                + "Autorzy:\n"
+                                + "- Paulina Chludzińska\n"
+                                + "- Paweł Golec\n\n"
+                                + "Wydział Informatyki, Politechnika Białostocka, 2018/19",
+                        bankTitle,
+                        JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    public void actionUserAdd(){
+        String newName = JOptionPane.showInputDialog(bankFrame, "Podaj nazwę użytkownika", "Dodawanie użytkownika", JOptionPane.QUESTION_MESSAGE);
+        if (newName != null) {
+            if (!newName.isEmpty()) {
+                clients.add(new Client(newName));
+                paneShowUsers();
+                setMenu(11);
+            } else {
+                JOptionPane.showMessageDialog(bankFrame, "Nie podano nazwy użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(bankFrame, "Anulowane dodawanie użytkownika!", "Dodawanie użytkownika", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
+    public void actionUserDel(){
+        int toDel = -1;
+        if (users.getSelectionModel().isSelectionEmpty()) {
+            JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Usuwanie użytkownika", JOptionPane.WARNING_MESSAGE);
+        } else {
+            int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), 0).toString());
+            for (Client d : clients) {
+                if (d.getClientId() == userID) {
+                    toDel = clients.indexOf(d);
+                }
+            }
+        }
+        if (toDel >= 0) {
+            if (clients.get(toDel).equals(loggedUser)) {
+                bankFrame.setTitle(bankTitle + " - brak aktywnego użytkownika");
+                loggedUser = null;
+            }
+            clients.remove(toDel);
+            paneShowUsers();
+            setMenu(12);
+        }
+    }
+    
+    public void actionUserActive(){
+        if(users.getSelectionModel().isSelectionEmpty()) {
+                JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś użytkownika!", "Wybór użytkownika", JOptionPane.WARNING_MESSAGE);
+            } else {
+                int userID = Integer.parseInt(users.getValueAt(users.getSelectedRow(), 0).toString());
+                for(Client d:clients)
+                    if(d.getClientId() == userID) loggedUser = d;
+                bankFrame.setTitle(bankTitle + " - " + loggedUser.getName());
+                JOptionPane.showMessageDialog(bankFrame, "Wybrano aktywnego użytkownika: "+loggedUser.getName(), "Wybór użytkownika", JOptionPane.INFORMATION_MESSAGE);
+                setMenu(13);
+            }
+    }
+    
+    public void actionAccAdd(){
+        String[] accType = {"Normal Account", "Credit Account", "Savings Account"};
+        String newAcc = (String) JOptionPane.showInputDialog(bankFrame, "Wybierz rodzaj konta", "Nowe konto", JOptionPane.QUESTION_MESSAGE, null, accType, accType[0]);
+        if (newAcc != null){
+            if(newAcc=="Normal Account"){
+                clients.get(clients.indexOf(loggedUser)).newAccount(new AccountNormal(loggedUser.getClientId()));
+            }
+            if(newAcc=="Credit Account"){
+                String newCredit = JOptionPane.showInputDialog(bankFrame, "Podaj limit kredytowy:", "Nowe konto", JOptionPane.QUESTION_MESSAGE);
+                clients.get(clients.indexOf(loggedUser)).newAccount(new AccountCredit(loggedUser.getClientId(), Double.valueOf(newCredit)));
+            }
+            if(newAcc=="Savings Account"){
+                String newInterest = JOptionPane.showInputDialog(bankFrame, "Podaj oprocenotwanie konta:", "Nowe konto", JOptionPane.QUESTION_MESSAGE);
+                clients.get(clients.indexOf(loggedUser)).newAccount(new AccountSavings(loggedUser.getClientId(), Double.valueOf(newInterest)/100)); 
+            }
+            paneShowAcc();
+            setMenu(21);
+        } else {
+            JOptionPane.showMessageDialog(bankFrame, "Anulowane dodawanie konta!", "Nowe konto", JOptionPane.WARNING_MESSAGE);
+        }  
+    }
+    
+    public void actionAccDel(){
+        int toDel = -1;
+        if (accounts.getSelectionModel().isSelectionEmpty()) {
+            JOptionPane.showMessageDialog(bankFrame, "Nie wybrałeś konta!", "Usuwanie konta", JOptionPane.WARNING_MESSAGE);
+        } else {
+            int accID = Integer.parseInt(accounts.getValueAt(accounts.getSelectedRow(), 0).toString());
+            for(Account a : loggedUser.getAccounts()){
+                if(a.getId() == accID){
+                    toDel = loggedUser.getAccounts().indexOf(a);
+                }
+            }
+        }
+        if (toDel >= 0){
+            clients.get(clients.indexOf(loggedUser)).getAccounts().remove(toDel);
+            paneShowAcc();
+            setMenu(22);
+        }
+    }
+    
+    public void setMenu(int opt){
+        // opt values:
+        //  0 - starting conditions, 
+        // 11 - first menu (User), first option (Add) 
+        // 23 - second menu (Acc), third option (Show)
+        // etc...
+        switch(opt){
+            case 0:{
+                menuUserAdd.setEnabled(true);
+                if(clients.isEmpty()) {
+                    menuUserDel.setEnabled(false);
+                    menuUserActive.setEnabled(false);
+                    menuUserShow.setEnabled(false);
+                } else {
+                    menuUserDel.setEnabled(true);
+                    menuUserActive.setEnabled(true);
+                    menuUserShow.setEnabled(true);
+                }
+                menuAccAdd.setEnabled(false);
+                menuAccDel.setEnabled(false);
+                menuAccShow.setEnabled(false);
+                menuOppAdd.setEnabled(false);
+                menuOppWithdraw.setEnabled(false);
+                menuOppTransfer.setEnabled(false);
+                menuOppShow.setEnabled(false);
+            } break;
+            case 11:{
+                menuUserDel.setEnabled(true);
+                menuUserActive.setEnabled(true);
+                menuUserShow.setEnabled(true);
+            } break;
+            case 12:{
+                if(clients.isEmpty()) {
+                    menuUserDel.setEnabled(false);
+                    menuUserActive.setEnabled(false);
+                    menuUserShow.setEnabled(false);
+                }
+            }
+            case 13:{
+                menuAccAdd.setEnabled(true);
+                menuAccDel.setEnabled(false);
+                if(loggedUser.getAccounts().isEmpty()){
+                    menuAccShow.setEnabled(false);
+                } else {
+                    menuAccShow.setEnabled(true);
+                }   
+            } break;
+            case 14:{
+                menuUserAdd.setEnabled(true);
+                if(clients.isEmpty()) {
+                    menuUserDel.setEnabled(false);
+                    menuUserActive.setEnabled(false);
+                    menuUserShow.setEnabled(false);
+                } else {
+                    menuUserDel.setEnabled(true);
+                    menuUserActive.setEnabled(true);
+                    menuUserShow.setEnabled(true);
+                }
+                menuAccDel.setEnabled(false);
+                if(loggedUser==null || loggedUser.getAccounts().isEmpty()){
+                    menuAccShow.setEnabled(false);
+                } else {
+                    menuAccShow.setEnabled(true);
+                }
+            }  break;
+            case 21:{
+                menuAccDel.setEnabled(true);
+                menuAccShow.setEnabled(true);
+            } break;
+            case 22:{
+                if(loggedUser.getAccounts().isEmpty()){
+                    menuAccDel.setEnabled(false);
+                    menuAccShow.setEnabled(false);
+                } else {
+                    menuAccDel.setEnabled(true);
+                    menuAccShow.setEnabled(true);
+                }
+            } break;
+            case 23:{
+                menuUserAdd.setEnabled(false);
+                menuUserDel.setEnabled(false);
+                menuUserActive.setEnabled(false);
+                menuAccAdd.setEnabled(true);
+                if(loggedUser.getAccounts().isEmpty()){
+                    menuAccDel.setEnabled(false);
+                    menuAccShow.setEnabled(false);
+                } else {
+                    menuAccDel.setEnabled(true);
+                    menuAccShow.setEnabled(true);
+                }
+            } break;
+        }
+    }    
+    
+    public void createData(){
+        clients.add(new Client("Pawel"));
+        clients.get(0).newAccount(new AccountNormal(clients.get(0).getClientId()));
+	clients.get(0).newAccount(new AccountNormal(clients.get(0).getClientId()));
+        clients.get(0).newAccount(new AccountCredit(clients.get(0).getClientId(), 400000));
+        clients.get(0).newAccount(new AccountSavings(clients.get(0).getClientId(), 0.05));
+	clients.add(new Client("Paulina"));
+        clients.get(1).newAccount(new AccountNormal(clients.get(1).getClientId()));
+	clients.get(1).newAccount(new AccountNormal(clients.get(1).getClientId()));
+	
+        clients.add(new Client("Adam"));
+        clients.get(2).newAccount(new AccountNormal(clients.get(2).getClientId()));
+	clients.get(2).newAccount(new AccountNormal(clients.get(2).getClientId()));
+        clients.get(2).newAccount(new AccountSavings(clients.get(2).getClientId(), 0.01));
+	clients.add(new Client("Alicja"));
+        clients.get(3).newAccount(new AccountNormal(clients.get(3).getClientId()));
+	clients.get(3).newAccount(new AccountNormal(clients.get(3).getClientId()));
+        clients.get(3).newAccount(new AccountCredit(clients.get(3).getClientId(), 20000));
+	clients.add(new Client("Bartek"));
+        clients.get(4).newAccount(new AccountNormal(clients.get(4).getClientId()));
+	clients.get(4).newAccount(new AccountNormal(clients.get(4).getClientId()));
+        clients.get(4).newAccount(new AccountSavings(clients.get(4).getClientId(), 0.09));
+	clients.add(new Client("Barbara"));
+        clients.get(5).newAccount(new AccountNormal(clients.get(5).getClientId()));
+	clients.get(5).newAccount(new AccountNormal(clients.get(5).getClientId()));
+	clients.add(new Client("Cezary"));
+        clients.get(6).newAccount(new AccountNormal(clients.get(6).getClientId()));
+	clients.get(6).newAccount(new AccountNormal(clients.get(6).getClientId()));
+        clients.get(6).newAccount(new AccountCredit(clients.get(6).getClientId(), 543000));
+        clients.get(6).newAccount(new AccountSavings(clients.get(6).getClientId(), 0.04));
+	clients.add(new Client("Damian"));
+        clients.get(7).newAccount(new AccountNormal(clients.get(7).getClientId()));
+	clients.get(7).newAccount(new AccountNormal(clients.get(7).getClientId()));
+	clients.add(new Client("Dorota"));
+        clients.get(8).newAccount(new AccountNormal(clients.get(8).getClientId()));
+	clients.get(8).newAccount(new AccountNormal(clients.get(8).getClientId()));
+        clients.get(8).newAccount(new AccountSavings(clients.get(8).getClientId(), 0.06));
+	clients.add(new Client("Eryk"));
+        clients.get(9).newAccount(new AccountNormal(clients.get(9).getClientId()));
+	clients.get(9).newAccount(new AccountNormal(clients.get(9).getClientId()));
+        clients.get(9).newAccount(new AccountCredit(clients.get(9).getClientId(), 92000));
+	clients.add(new Client("Ewa"));
+        clients.get(10).newAccount(new AccountNormal(clients.get(10).getClientId()));
+	clients.get(10).newAccount(new AccountNormal(clients.get(10).getClientId()));
+        clients.get(10).newAccount(new AccountSavings(clients.get(10).getClientId(), 0.08));
+	clients.add(new Client("Fabian"));
+        clients.get(11).newAccount(new AccountNormal(clients.get(11).getClientId()));
+	clients.get(11).newAccount(new AccountNormal(clients.get(11).getClientId()));
+	clients.add(new Client("Fiona"));
+        clients.get(12).newAccount(new AccountNormal(clients.get(12).getClientId()));
+	clients.get(12).newAccount(new AccountNormal(clients.get(12).getClientId()));
+        clients.get(12).newAccount(new AccountCredit(clients.get(12).getClientId(), 1742000));
+        clients.get(12).newAccount(new AccountSavings(clients.get(12).getClientId(), 0.03));
+	clients.add(new Client("Grzegorz"));
+        clients.get(13).newAccount(new AccountNormal(clients.get(13).getClientId()));
+	clients.get(13).newAccount(new AccountNormal(clients.get(13).getClientId()));
+	clients.add(new Client("Gosia"));
+        clients.get(14).newAccount(new AccountNormal(clients.get(14).getClientId()));
+	clients.get(14).newAccount(new AccountNormal(clients.get(14).getClientId()));
+        clients.get(14).newAccount(new AccountSavings(clients.get(14).getClientId(), 0.11));
         
     }
 }    

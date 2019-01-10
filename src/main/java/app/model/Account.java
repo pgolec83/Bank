@@ -31,10 +31,6 @@ public abstract class Account implements Serializable{
 		return accType;
 	}
 
-	public void setAccType(String accType) {
-		this.accType = accType;
-	}
-
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
@@ -49,6 +45,7 @@ public abstract class Account implements Serializable{
 	}
 	
 	//abstract toString method - different account show various information
+        @Override
 	public abstract String toString();
 
 }
