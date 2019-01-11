@@ -5,18 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Operation implements Serializable {
-	private int uniqID = 0; //unique operation ID for each instance of Operation
+	private static int uniqOppID = 0; //unique operation ID for each instance of Operation
 	private int oppId; //operation ID
+        private int userOpp; //user making operation
 	private String oppDate; //date and time of operation
 	private int oppAccFrom; //source of operation
 	private int oppAccTo; //destination of operation
-	private float oppValue; //value of operation
-	private float oppCost; //cost of operation
+	private double oppValue; //value of operation
 	private String oppTitle; //title of operation
 	
-	public Operation(int accId, int accFrom, int accTo, float value, String title) {
-		uniqID++;
-		this.oppId = accId + uniqID;
+	public Operation(int user, int accFrom, int accTo, double value, String title) {
+		uniqOppID++;
+		this.oppId = user + uniqOppID;
+                this.userOpp = user;
 		Date createdDate = new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String dateString = dateFormat.format(createdDate);
@@ -24,10 +25,9 @@ public class Operation implements Serializable {
                 this.oppAccFrom = accFrom;
                 this.oppAccTo = accTo;
                 this.oppValue = value;
-                this.oppCost = (float) (0.01 * value);
                 this.oppTitle = title; 
-	}
-
+	}    
+        
     public int getOppId() {
         return oppId;
     }
@@ -44,17 +44,23 @@ public class Operation implements Serializable {
         return oppAccTo;
     }
 
-    public float getOppValue() {
+    public double getOppValue() {
         return oppValue;
-    }
-
-    public float getOppCost() {
-        return oppCost;
     }
 
     public String getOppTitle() {
         return oppTitle;
     }
 
+    public int getUserOpp() {
+        return userOpp;
+    }
+
+    @Override
+    public String toString() {
+        return "Operation{oppId=" + oppId + ", userOpp=" + userOpp + ", oppDate=" + oppDate + ", oppAccFrom=" + oppAccFrom + ", oppAccTo=" + oppAccTo + ", oppValue=" + oppValue + ", oppTitle=" + oppTitle + "}\n";
+    }
+
+    
         
 }

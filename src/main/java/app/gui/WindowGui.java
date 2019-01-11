@@ -2,16 +2,10 @@ package app.gui;
 
 import app.model.*;
 import app.model.AccountCredit;
-
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.*;
-import static javax.swing.JOptionPane.*;
 
 
 public class WindowGui{
@@ -26,10 +20,12 @@ public class WindowGui{
     private JMenuItem menuUserAdd, menuUserDel, menuUserActive, menuUserShow;
     private JMenuItem menuAccAdd, menuAccDel, menuAccShow;
     private JMenuItem menuOppAdd, menuOppWithdraw, menuOppTransfer, menuOppShow;
-    private List<Client> clients; 
+    private List<Client> clients;
+    private List<Operation> operations;
     
     public WindowGui(){
         clients = new LinkedList<>();
+        operations = new LinkedList<>();
         createData();
                 
         bankFrame = new JFrame();
@@ -83,7 +79,7 @@ public class WindowGui{
         });    
         menuOppAdd = new JMenuItem("Wpłata na konto");
         menuOppAdd.addActionListener((ActionEvent e) -> {
-            
+            actionOppAdd();
         });
         menuOppWithdraw = new JMenuItem("Wypłata z konta");
         menuOppWithdraw.addActionListener((ActionEvent e) -> {
@@ -95,7 +91,7 @@ public class WindowGui{
         });
         menuOppShow = new JMenuItem("Wyświetl operacje użytkownika");
         menuOppShow.addActionListener((ActionEvent e) -> {
-            
+            paneShowOpp();
         });
         
         menuBank.add(menuBankAbout);
@@ -168,7 +164,7 @@ public class WindowGui{
         for(int j=0;j<loggedUser.getAccounts().size();j++){
             tableData[j][0] = String.valueOf(loggedUser.getAccounts().get(j).getId());
             tableData[j][2] = String.valueOf(loggedUser.getAccounts().get(j).getBalance()) + " PLN";
-            tableData[j][5] = String.valueOf(loggedUser.getAccounts().get(j).getOperations().size());
+            tableData[j][5] = String.valueOf(loggedUser.getAccounts().get(j).getOperations());
             if(loggedUser.getAccounts().get(j).getAccType()=="N"){
                 tableData[j][1] = "Normal Account";
                 tableData[j][3] = "-";
@@ -190,9 +186,49 @@ public class WindowGui{
         paneAccs.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         paneAccs.setBounds(0, 0, 795, 550);
         bankPanel.add(paneAccs);
-        setMenu(23);
+        setMenu(23);      
     }
 
+    public void paneShowOpp(){
+        if(bankPanel.getComponentCount()>0){
+            bankPanel.remove(0);
+        }
+        if(loggedUser==null){
+            JOptionPane.showMessageDialog(bankFrame, "Nie wybrano aktywnego użytkownika!", "Brak użytkownika", JOptionPane.WARNING_MESSAGE);
+            paneShowUsers();
+        }
+        int userOps = 0;
+        for(Operation o:operations){
+            if (o.getUserOpp()==loggedUser.getClientId()) userOps++;
+        }
+        String tableHeaders[] = {"ID", "Date", "From Account", "To Account", "Value", "Title"};
+        String tableData[][] = new String[userOps][6];
+        int op = 0;
+        for(Operation o:operations){
+            if (o.getUserOpp()==loggedUser.getClientId()){
+                tableData[op][0] = String.valueOf(o.getOppId());
+                tableData[op][1] = o.getOppDate();
+                tableData[op][2] = String.valueOf(o.getOppAccFrom());
+                tableData[op][3] = String.valueOf(o.getOppAccTo());
+                tableData[op][4] = String.valueOf(o.getOppValue());
+                tableData[op][5] = o.getOppTitle();
+                op++;
+            }
+        }
+        JTable operationsList = new JTable(tableData, tableHeaders);
+        operationsList.getColumnModel().getColumn(0).setPreferredWidth(100);
+        operationsList.getColumnModel().getColumn(1).setPreferredWidth(150);
+        operationsList.getColumnModel().getColumn(2).setPreferredWidth(100);
+        operationsList.getColumnModel().getColumn(3).setPreferredWidth(100);
+        operationsList.getColumnModel().getColumn(4).setPreferredWidth(100);
+        operationsList.getColumnModel().getColumn(5).setPreferredWidth(245);
+        JScrollPane paneOpps = new JScrollPane(operationsList);
+        paneOpps.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        paneOpps.setBounds(0, 0, 795, 550);
+        bankPanel.add(paneOpps);
+        
+    }
+    
     public void actionMsgAbout(){
         JOptionPane.showMessageDialog(bankFrame,
                         "Aplikacja Bankowa\n\n"
@@ -297,6 +333,28 @@ public class WindowGui{
         }
     }
     
+    public void actionOppAdd(){
+        String[] listUserAcc = new String[loggedUser.getAccounts().size()];
+        for(int i=0;i<loggedUser.getAccounts().size();i++){
+            listUserAcc[i] = String.valueOf(loggedUser.getAccounts().get(i).getId());
+        }
+        String selToAcc = (String) JOptionPane.showInputDialog(bankFrame, "Wybierz konto do operacji", "Wpłata na konto", JOptionPane.QUESTION_MESSAGE, null, listUserAcc, listUserAcc[0]);
+        if(selToAcc == null) return;
+        String newFunds = JOptionPane.showInputDialog(bankFrame, "Wartość środków do wpłacenia na konto:", "Wpłata na kotno", JOptionPane.QUESTION_MESSAGE);
+        if(newFunds == null) return;
+        for(Client c:clients){
+            for(Account a:c.getAccounts()){
+                if(a.getId()==Integer.valueOf(selToAcc)){                    
+                    a.setBalance(Double.valueOf(newFunds));
+                    a.addOperation();                    
+                    operations.add(new Operation(loggedUser.getClientId(), 0, Integer.valueOf(selToAcc), Double.valueOf(newFunds), "Doładowanie"));
+                    break;
+                }   
+            }
+        }
+        paneShowAcc();
+    } 
+    
     public void setMenu(int opt){
         // opt values:
         //  0 - starting conditions, 
@@ -334,15 +392,28 @@ public class WindowGui{
                     menuUserActive.setEnabled(false);
                     menuUserShow.setEnabled(false);
                 }
+                if(loggedUser==null){
+                    menuOppAdd.setEnabled(false);
+                    menuOppWithdraw.setEnabled(false);
+                    menuOppTransfer.setEnabled(false);
+                    menuOppShow.setEnabled(false);
+                }
             }
             case 13:{
-                menuAccAdd.setEnabled(true);
+                if(loggedUser==null){
+                    menuAccAdd.setEnabled(false);
+                } else {
+                    menuAccAdd.setEnabled(true);
+                }
                 menuAccDel.setEnabled(false);
-                if(loggedUser.getAccounts().isEmpty()){
+                if(loggedUser==null || loggedUser.getAccounts().isEmpty()){
                     menuAccShow.setEnabled(false);
                 } else {
                     menuAccShow.setEnabled(true);
-                }   
+                }
+                menuOppAdd.setEnabled(true);
+                menuOppWithdraw.setEnabled(true);
+                menuOppShow.setEnabled(true);
             } break;
             case 14:{
                 menuUserAdd.setEnabled(true);
@@ -392,15 +463,42 @@ public class WindowGui{
     }    
     
     public void createData(){
+        //wypelnienie przykladowymi danymi do testow
         clients.add(new Client("Pawel"));
         clients.get(0).newAccount(new AccountNormal(clients.get(0).getClientId()));
 	clients.get(0).newAccount(new AccountNormal(clients.get(0).getClientId()));
         clients.get(0).newAccount(new AccountCredit(clients.get(0).getClientId(), 400000));
         clients.get(0).newAccount(new AccountSavings(clients.get(0).getClientId(), 0.05));
+        operations.add(new Operation(1010000, 0, 1011001, 34000, "Wypłata z pracy"));
+        clients.get(0).getAccounts().get(0).setBalance(34000);
+        clients.get(0).getAccounts().get(0).addOperation();
+        operations.add(new Operation(1010000, 0, 1011002, 50000, "Wygrana LOTTO"));
+        clients.get(0).getAccounts().get(1).setBalance(50000);
+        clients.get(0).getAccounts().get(1).addOperation();
+        operations.add(new Operation(1010000, 0, 1013003, 20000, "Przyanany kredyt"));
+        clients.get(0).getAccounts().get(2).setBalance(20000);
+        clients.get(0).getAccounts().get(2).addOperation();
+        operations.add(new Operation(1010000, 0, 1016004, 10000, "Oszczedzanie"));
+        clients.get(0).getAccounts().get(3).setBalance(10000);
+        clients.get(0).getAccounts().get(3).addOperation();
+        operations.add(new Operation(1010000, 1011002, 1016004, 40000, "Oszczedzanie z wygranej"));
+        clients.get(0).getAccounts().get(1).setBalance(-40000);
+        clients.get(0).getAccounts().get(3).setBalance(40000);
+        clients.get(0).getAccounts().get(1).addOperation();
+        clients.get(0).getAccounts().get(3).addOperation();
 	clients.add(new Client("Paulina"));
         clients.get(1).newAccount(new AccountNormal(clients.get(1).getClientId()));
 	clients.get(1).newAccount(new AccountNormal(clients.get(1).getClientId()));
-	
+	operations.add(new Operation(1020000, 0, 1021005, 55000, "Zysk ze sprzedazy"));
+        clients.get(1).getAccounts().get(0).setBalance(55000);
+        clients.get(1).getAccounts().get(0).addOperation();
+        operations.add(new Operation(1020000, 1021005, 1011001, 10000, "Splata pozyczki"));
+        clients.get(0).getAccounts().get(0).setBalance(10000);
+        clients.get(1).getAccounts().get(0).setBalance(-10000);
+        clients.get(0).getAccounts().get(0).addOperation();
+        clients.get(1).getAccounts().get(0).addOperation();        
+        //pawel    1010000 - 1011001, 1011002, 1013003, 1016004
+        //paulina  1020000 - 1021005, 1021006
         clients.add(new Client("Adam"));
         clients.get(2).newAccount(new AccountNormal(clients.get(2).getClientId()));
 	clients.get(2).newAccount(new AccountNormal(clients.get(2).getClientId()));
