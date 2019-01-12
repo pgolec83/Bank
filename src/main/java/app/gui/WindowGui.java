@@ -83,7 +83,7 @@ public class WindowGui{
         });
         menuOppWithdraw = new JMenuItem("Wypłata z konta");
         menuOppWithdraw.addActionListener((ActionEvent e) -> {
-            
+            actionOppDel();
         });
         menuOppTransfer = new JMenuItem("Przelew pomiędzy kontami");
         menuOppTransfer.addActionListener((ActionEvent e) -> {
@@ -342,18 +342,49 @@ public class WindowGui{
         if(selToAcc == null) return;
         String newFunds = JOptionPane.showInputDialog(bankFrame, "Wartość środków do wpłacenia na konto:", "Wpłata na kotno", JOptionPane.QUESTION_MESSAGE);
         if(newFunds == null) return;
+        String newTitle = JOptionPane.showInputDialog(bankFrame, "Podaj tytuł operacji:", "Wpłata na konto", JOptionPane.QUESTION_MESSAGE);
+        if(newTitle == null) newTitle="Wpłata środków";
         for(Client c:clients){
             for(Account a:c.getAccounts()){
                 if(a.getId()==Integer.valueOf(selToAcc)){                    
                     a.setBalance(Double.valueOf(newFunds));
                     a.addOperation();                    
-                    operations.add(new Operation(loggedUser.getClientId(), 0, Integer.valueOf(selToAcc), Double.valueOf(newFunds), "Doładowanie"));
+                    operations.add(new Operation(loggedUser.getClientId(), 0, Integer.valueOf(selToAcc), Double.valueOf(newFunds), newTitle));
                     break;
                 }   
             }
         }
         paneShowOpp();
     } 
+    
+    public void actionOppDel(){
+        String[] listUserAcc = new String[loggedUser.getAccounts().size()];
+        for(int i=0;i<loggedUser.getAccounts().size();i++){
+            listUserAcc[i] = String.valueOf(loggedUser.getAccounts().get(i).getId());
+        }
+        String selFromAcc = (String) JOptionPane.showInputDialog(bankFrame, "Wybierz konto do operacji:", "Wypłata z konta", JOptionPane.QUESTION_MESSAGE, null, listUserAcc, listUserAcc[0]);
+        if(selFromAcc == null) return;
+        String getFunds = JOptionPane.showInputDialog(bankFrame, "Wartość środków do wypłacenia z konta:", "Wypłata z konta", JOptionPane.QUESTION_MESSAGE);
+        if(getFunds == null) return;
+        String newTitle = JOptionPane.showInputDialog(bankFrame, "Podaj tytuł operacji:", "Wypłata z konta", JOptionPane.QUESTION_MESSAGE);
+        if(newTitle == null) newTitle="Wypłata środków";
+        for(Client c:clients){
+            for(Account a:c.getAccounts()){
+                if(a.getId()==Integer.valueOf(selFromAcc)){
+                    if(a.getBalance() < Double.valueOf(getFunds)){
+                        JOptionPane.showMessageDialog(bankFrame, "Brak środków na koncie", "Wypłata z konta", JOptionPane.WARNING_MESSAGE);
+                        break;
+                    } else {
+                        a.setBalance(-Double.valueOf(getFunds));
+                        a.addOperation();
+                        operations.add(new Operation(loggedUser.getClientId(), Integer.valueOf(selFromAcc), 0, Double.valueOf(getFunds), newTitle));
+                        break;
+                    }
+                }   
+            }
+        }
+        paneShowOpp();
+    }
     
     public void setMenu(int opt){
         // opt values:
@@ -475,7 +506,7 @@ public class WindowGui{
         operations.add(new Operation(1010000, 0, 1011002, 50000, "Wygrana LOTTO"));
         clients.get(0).getAccounts().get(1).setBalance(50000);
         clients.get(0).getAccounts().get(1).addOperation();
-        operations.add(new Operation(1010000, 0, 1013003, 20000, "Przyanany kredyt"));
+        operations.add(new Operation(1010000, 0, 1013003, 20000, "Przyznany kredyt"));
         clients.get(0).getAccounts().get(2).setBalance(20000);
         clients.get(0).getAccounts().get(2).addOperation();
         operations.add(new Operation(1010000, 0, 1016004, 10000, "Oszczedzanie"));
