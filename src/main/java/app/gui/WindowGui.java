@@ -352,7 +352,7 @@ public class WindowGui{
                 }   
             }
         }
-        paneShowAcc();
+        paneShowOpp();
     } 
     
     public void setMenu(int opt){
